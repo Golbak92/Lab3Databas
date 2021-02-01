@@ -106,49 +106,41 @@ namespace Lab3Databas
 
         private void AddBook_Click(object sender, EventArgs e)
         {
-                var rowIndex = dataGridView1.Rows.Add();
+            var rowIndex = dataGridView1.Rows.Add();
 
-                var comboBoxCell = dataGridView1.Rows[rowIndex].Cells[0] as DataGridViewComboBoxCell;
-                comboBoxCell.ValueType = typeof(Böcker);
-                comboBoxCell.DisplayMember = "Isbn";
-                comboBoxCell.ValueMember = "This";
+            var comboBoxCell = dataGridView1.Rows[rowIndex].Cells[0] as DataGridViewComboBoxCell;
+            comboBoxCell.ValueType = typeof(Böcker);
+            comboBoxCell.DisplayMember = "Isbn";
+            comboBoxCell.ValueMember = "This";
 
-                foreach (var book in books)
-                {
-                    comboBoxCell.Items.Add(book);
-                }
-
-            //    dataGridView1.Rows[rowIndex].Cells[3].Value = stock.Antal;
-
-            ////    foreach (var book in books)
-            ////    {
-            ////        comboBoxCell.Items.Add(book);
-            ////        if (stock.Isbn == book.Isbn)
-            ////        {
-            ////            dataGridView1.Rows[rowIndex].Cells[1].Value = book.Titel;
-            ////            dataGridView1.Rows[rowIndex].Cells[2].Value = $"{book.Författare.Förnamn} {book.Författare.Efternamn}";
-            ////        }
-            ////    }
-            ////    dataGridView1.Rows[rowIndex].Cells[0].Value = stock.IsbnNavigation;           
+            foreach (var book in books)
+            {
+                comboBoxCell.Items.Add(book);
+            }          
         }
 
         private void dataGridView1_CellValueChanged(object sender, DataGridViewCellEventArgs e)
         {
-            if (dataGridView1.Columns[e.ColumnIndex].Name == books.)
+            if (e.RowIndex < 0)
             {
-                if ()
-                {
+                return;
+            }
 
-                }
+            if (e.ColumnIndex == 0)
+            {
+                var bok = dataGridView1.Rows[e.RowIndex].Cells[0].Value as Böcker;
+
+                dataGridView1.Rows[e.RowIndex].Cells[1].Value = bok.Titel;
+                dataGridView1.Rows[e.RowIndex].Cells[2].Value = $"{bok.Författare.Förnamn} {bok.Författare.Efternamn}";
             }
         }
 
         private void RemoveBook_Click(object sender, EventArgs e)
         {
-            if ()
-            {
+            //if ()
+            //{
 
-            }
+            //}
         }
     }
 }
