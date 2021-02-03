@@ -17,6 +17,9 @@ namespace Lab3Databas
         private List<Böcker> books = new List<Böcker>();
         private List<Lagersaldo> stocks = new List<Lagersaldo>();
         private Lab2BokhandelContext db = new Lab2BokhandelContext();
+        private int currentRowIndex;
+        private int currentStoreID;
+        private bool isNewStock = false;
 
         private void Form1_Load(object sender, EventArgs e)
         {
@@ -58,7 +61,6 @@ namespace Lab3Databas
                             {
                                 TreeNode bookNode = new TreeNode($"{book.Titel} x{stock.Antal}");
                                 stockNode.Nodes.Add(bookNode);
-
                             }
                         }
                     }
@@ -73,6 +75,11 @@ namespace Lab3Databas
 
         private void treeView1_AfterSelect(object sender, TreeViewEventArgs e)
         {
+            if (e.Node.Tag is Butiker store)
+            {
+                currentStoreID = store.ButiksId;
+            }
+
             if (e.Node.Tag is ICollection<Lagersaldo> stocks)
             {
                 dataGridView1.Rows.Clear();
@@ -80,6 +87,7 @@ namespace Lab3Databas
                 foreach (var stock in stocks)
                 {
                     var rowIndex = dataGridView1.Rows.Add();
+                    dataGridView1.Rows[rowIndex].Tag = stock;
 
                     var comboBoxCell = dataGridView1.Rows[rowIndex].Cells[0] as DataGridViewComboBoxCell;
                     comboBoxCell.ValueType = typeof(Böcker);
@@ -116,10 +124,12 @@ namespace Lab3Databas
             {
                 comboBoxCell.Items.Add(book);
             }
+
+            isNewStock = true;
         }
 
         private void dataGridView1_CellValueChanged(object sender, DataGridViewCellEventArgs e)
-        {          
+        {
             if (e.RowIndex < 0) return;
 
             var cell = dataGridView1.Rows[e.RowIndex].Cells[e.ColumnIndex];
@@ -131,33 +141,51 @@ namespace Lab3Databas
                 dataGridView1.Rows[e.RowIndex].Cells[1].Value = bok.Titel;
                 dataGridView1.Rows[e.RowIndex].Cells[2].Value = $"{bok.Författare.Förnamn} {bok.Författare.Efternamn}";
             }
-            else if (e.ColumnIndex == 2)
+            else if (e.ColumnIndex == 3)
             {
-                var stockDetail = dataGridView1.Rows[e.RowIndex].Tag as Lagersaldo;
-
                 int result;
 
-                if (Int32.TryParse(cell.Value.ToString(), out result))
+                Int32.TryParse(cell.Value.ToString(), out result);
+
+                var stockDetail = dataGridView1.Rows[e.RowIndex].Tag as Lagersaldo;
+                if (stockDetail != null)
                 {
-                stockDetail.Antal = (int?)result;
+                    stockDetail.Antal = (int?)result;
+                }
+
+                if (isNewStock)
+                {
+                    var book = dataGridView1.Rows[e.RowIndex].Cells[0].Value as Böcker;
+
+                    Lagersaldo newStock = new Lagersaldo()
+                    {
+                        ButiksId = currentStoreID,
+                        Antal = result,
+                        Isbn = book.Isbn
+                    };
+
+                    db.Lagersaldos.Add(newStock);
                 }
             }
         }
 
         private void RemoveBook_Click(object sender, EventArgs e)
         {
-            if (treeView1.SelectedNode.Tag is ICollection<Lagersaldo> stocks)
+            if (dataGridView1.Rows[currentRowIndex].Tag is Lagersaldo stock)
             {
                 var result = MessageBox.Show(
-                    $"Are you sure?",
-                    MessageBoxButtons.YesNo.ToString()
+                    $"Are you sure?", "Remove book",
+                    MessageBoxButtons.YesNo
                    );
 
                 if (result == DialogResult.Yes)
                 {
-                    db.Remove(stocks);
+                    db.Remove(stock);
                     var nodeToDelete = treeView1.SelectedNode;
                     nodeToDelete.Parent.Nodes.Remove(nodeToDelete);
+                    dataGridView1.Rows.Remove(dataGridView1.Rows[currentRowIndex]);
+
+                    db.SaveChanges();
                 }
             }
 
@@ -168,6 +196,10 @@ namespace Lab3Databas
             db.SaveChanges();
             db.Dispose();
         }
+
+        private void dataGridView1_CellMouseClick(object sender, DataGridViewCellMouseEventArgs e)
+        {
+            currentRowIndex = e.RowIndex;
+        }
     }
 }
-
