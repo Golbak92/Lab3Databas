@@ -136,13 +136,13 @@ namespace Lab3Databas
                 entity.HasOne(d => d.Butiks)
                     .WithMany(p => p.Lagersaldos)
                     .HasForeignKey(d => d.ButiksId)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .OnDelete(DeleteBehavior.Cascade)
                     .HasConstraintName("FK_Lagersaldo_Butiker1");
 
                 entity.HasOne(d => d.IsbnNavigation)
                     .WithMany(p => p.Lagersaldos)
                     .HasForeignKey(d => d.Isbn)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .OnDelete(DeleteBehavior.Cascade)
                     .HasConstraintName("FK_Lagersaldo_Böcker1");
             });
 
@@ -191,7 +191,7 @@ namespace Lab3Databas
                 entity.HasOne(d => d.OrdernrNavigation)
                     .WithMany(p => p.OrderRaders)
                     .HasForeignKey(d => d.Ordernr)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .OnDelete(DeleteBehavior.Cascade)
                     .HasConstraintName("FK_OrderRader_OrderHuvud");
             });
 
